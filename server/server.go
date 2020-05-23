@@ -14,10 +14,8 @@ import (
 	"github.com/rs/cors"
 )
 
-const port = ":8000"
-
 // Serve initializes the http server
-func Serve() {
+func Serve(port string) {
 	router := httprouter.New()
 
 	router.GET("/", indexHandler)
@@ -73,11 +71,6 @@ func authenticatedUser(r *http.Request) (*u.User, error) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if authenticate(r) == false {
-		http.Error(w, "Not authenticated", 401)
-		return
-	}
-
 	health := make(map[string]string)
 	health["status"] = "OK"
 

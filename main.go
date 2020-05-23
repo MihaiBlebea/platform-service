@@ -11,7 +11,9 @@ import (
 	"github.com/MihaiBlebea/Wordpress/platform/user/token"
 )
 
-func main() {
+const serverPort = ":8001"
+
+func init() {
 	userRepo := user.Repo(c.Mysql())
 	tokenRepo := token.Repo(c.Mysql())
 	productRepo := product.Repo(c.Mysql())
@@ -33,6 +35,8 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+}
 
-	server.Serve()
+func main() {
+	server.Serve(serverPort)
 }

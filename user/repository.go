@@ -68,6 +68,26 @@ func (r *Repository) Add(user *User) (int, error) {
 	return int(id), nil
 }
 
+// Remove removes a user from the database
+func (r *Repository) Remove(user *User) error {
+	client, err := r.Connection.Connect()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	stmt, err := client.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(user.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // FindByID returns a user by id
 func (r *Repository) FindByID(userID int) (*User, int, error) {
 	client, err := r.Connection.Connect()

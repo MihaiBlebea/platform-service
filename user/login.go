@@ -25,7 +25,7 @@ func Login(email, password string) (LoginResponse, error) {
 		return failResponse(), err
 	}
 
-	isPasswordValid := checkPasswordHash(password, user.Password)
+	isPasswordValid := CheckPasswordHash(password, user.Password)
 	if isPasswordValid == false {
 		return failResponse(), err
 	}
@@ -47,7 +47,8 @@ func Authenticate(token string) (bool, *User, error) {
 	return true, user, nil
 }
 
-func checkPasswordHash(password, hash string) bool {
+// CheckPasswordHash checks if the password is valid
+func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }

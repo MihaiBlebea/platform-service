@@ -42,6 +42,52 @@ func (r *Repository) Migrate() error {
 	return nil
 }
 
+// Add adds a Product model to the db
+func (r *Repository) Add(product *Product) (int, error) {
+	client, err := r.Connection.Connect()
+	if err != nil {
+		return 0, err
+	}
+	defer client.Close()
+
+	stmt, err := client.Prepare("INSERT INTO products (code, name, price, currency, active, created) VALUES (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := stmt.Exec(product.Code, product.Name, product.Price, product.Currency, product.Active, product.Created)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
+}
+
+// Remove removes a Product model to the db
+func (r *Repository) Remove(product *Product) error {
+	client, err := r.Connection.Connect()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	stmt, err := client.Prepare("DELETE FROM products WHERE id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(product.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // FindByCode returns a user by id
 func (r *Repository) FindByCode(code string) (*Product, int, error) {
 	products, count, err := r.findBy("SELECT * FROM products WHERE code = ?", code)

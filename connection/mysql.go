@@ -3,23 +3,16 @@ package connection
 import (
 	"database/sql"
 	"fmt"
-)
-
-const (
-	username = "admin"
-	password = "pass"
-	host     = "127.0.0.1"
-	port     = "3307"
-	database = "platform"
+	"os"
 )
 
 // MysqlConnection holds the mysql connection
 type MysqlConnection struct {
-	username string
-	password string
-	host     string
-	port     string
-	database string
+	Username string
+	Password string
+	Host     string
+	Port     string
+	Database string
 }
 
 // Connection interface
@@ -29,7 +22,14 @@ type Connection interface {
 
 // Connect returns a mysql connection
 func (mc *MysqlConnection) Connect() (*sql.DB, error) {
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", mc.username, mc.password, mc.host, mc.port, mc.database)
+	dataSource := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		mc.Username,
+		mc.Password,
+		mc.Host,
+		mc.Port,
+		mc.Database,
+	)
 	client, err := sql.Open("mysql", dataSource)
 	if err != nil {
 		return nil, err
@@ -39,5 +39,11 @@ func (mc *MysqlConnection) Connect() (*sql.DB, error) {
 
 // Mysql returns a new MysqlConnection struct
 func Mysql() *MysqlConnection {
-	return &MysqlConnection{username, password, host, port, database}
+	return &MysqlConnection{
+		os.Getenv("MYSQL_USER"),
+		os.Getenv("MYSQL_PASSWORD"),
+		os.Getenv("MYSQL_HOST"),
+		os.Getenv("MYSQL_PORT"),
+		os.Getenv("MYSQL_DATABASE"),
+	}
 }
