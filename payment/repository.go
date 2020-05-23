@@ -42,7 +42,7 @@ func (r *Repository) Migrate() error {
 	return nil
 }
 
-// Add adds a User model to the db
+// Add adds a Payment to the db
 func (r *Repository) Add(payment *Payment) (int, error) {
 	client, err := r.Connection.Connect()
 	if err != nil {
@@ -67,7 +67,28 @@ func (r *Repository) Add(payment *Payment) (int, error) {
 	return int(id), nil
 }
 
-// FindByProductID returns a user by id
+// Remove removes a payment from db
+func (r *Repository) Remove(payment *Payment) error {
+	client, err := r.Connection.Connect()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	stmt, err := client.Prepare("DELETE FROM payments WHERE id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(payment.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// FindByProductID return payments by product
 func (r *Repository) FindByProductID(productID int) (*[]Payment, int, error) {
 	payments, count, err := r.findBy("SELECT * FROM payments WHERE product_id = ?", productID)
 	if err != nil {

@@ -2,6 +2,8 @@ package user
 
 import (
 	"fmt"
+	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -50,6 +52,20 @@ func (u *User) GenerateJWT() error {
 	}
 	u.JWT = signedToken
 	return nil
+}
+
+// GenerateRandomPassword generates a random password for the user
+func GenerateRandomPassword() string {
+	rand.Seed(time.Now().UnixNano())
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
+		"abcdefghijklmnopqrstuvwxyzåäö" +
+		"0123456789")
+	length := 8
+	var b strings.Builder
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[rand.Intn(len(chars))])
+	}
+	return b.String()
 }
 
 // New returns new User model

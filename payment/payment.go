@@ -2,8 +2,6 @@ package payment
 
 import (
 	"time"
-
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
 )
 
 // Provider Payment interface
@@ -33,14 +31,14 @@ type Details struct {
 }
 
 // Make a new transaction with the payment provider
-func Make(provider Provider, details Details) (*Payment, error) {
+func Make(provider Provider, repository Repository, details Details) (payment Payment, err error) {
 	provider.Connect()
-	_, err := provider.Payment()
+	_, err = provider.Payment()
 	if err != nil {
-		return &Payment{}, err
+		return payment, err
 	}
 
-	payment := Payment{
+	payment = Payment{
 		UserID:      details.UserID,
 		ProductID:   details.ProductID,
 		PaymentCode: "abcd_payment",
@@ -48,13 +46,12 @@ func Make(provider Provider, details Details) (*Payment, error) {
 		Currency:    details.Currency,
 		Created:     time.Now(),
 	}
-	paymentRepo := Repo(c.Mysql())
 
-	paymentID, err := paymentRepo.Add(&payment)
+	paymentID, err := repository.Add(&payment)
 	if err != nil {
-		return &Payment{}, err
+		return payment, err
 	}
 	payment.ID = paymentID
 
-	return &payment, nil
+	return payment, nil
 }

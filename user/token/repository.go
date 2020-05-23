@@ -68,6 +68,27 @@ func (r *Repository) Add(token *Token) (int, error) {
 	return int(id), nil
 }
 
+// RemoveByUser removes all tokens for user
+func (r *Repository) RemoveByUser(userID int) error {
+	client, err := r.Connection.Connect()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	stmt, err := client.Prepare("DELETE FROM tokens WHERE user_id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // FindByUserID returns all tokens for a user
 func (r *Repository) FindByUserID(userID int) (*[]Token, int, error) {
 	tokens, count, err := r.findBy("SELECT * FROM tokens WHERE user_id = ?", userID)

@@ -169,6 +169,7 @@ func (r *Repository) FindByJWT(token string) (*User, int, error) {
 		}
 		users = append(users, user)
 	}
+
 	if len(users) == 0 {
 		return &User{}, 0, nil
 	}
