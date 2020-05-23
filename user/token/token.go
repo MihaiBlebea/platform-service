@@ -3,6 +3,7 @@ package token
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -25,28 +26,28 @@ type Token struct {
 }
 
 // Validate if the token is valid or not return bool
-func (t *Token) Validate(token, host string) (bool, string, error) {
+func (t *Token) Validate(token, host string) (bool, error) {
 	if t.Active != true {
-		return false, "Token is not active", nil
+		return false, errors.New("Token is not active")
 	}
 
 	if t.Token != token {
-		return false, "Token is invalid", nil
+		return false, errors.New("Token is invalid")
 	}
 
 	if t.LinkedHost != host {
-		return false, "Token's host is not the same as the provided one", nil
+		return false, errors.New("Token's host is not the same as the provided one")
 	}
 
 	expires, err := time.Parse(timeFormat, t.Expires)
 	if err != nil {
-		return false, "", err
+		return false, err
 	}
 	now := time.Now()
 	if expires.Before(now) {
-		return false, "Token has expired", nil
+		return false, errors.New("Token has expired")
 	}
-	return true, "Token is valid", nil
+	return true, nil
 }
 
 // HasHost returns bool if token has linked host or not

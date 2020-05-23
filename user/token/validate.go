@@ -4,28 +4,22 @@ import (
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
 )
 
-// ValidateResponse response struct
-type ValidateResponse struct {
-	Valid   bool   `json:"valid"`
-	Message string `json:"message"`
-}
-
 // Validate token
-func Validate(token, host string) (ValidateResponse, error) {
+func Validate(token, host string) (isValid bool, err error) {
 	tokenRepo := Repo(c.Mysql())
 	tkn, _, err := tokenRepo.FindToken(token)
 	if err != nil {
-		return ValidateResponse{}, err
+		return false, err
 	}
 
-	valid, message, err := tkn.Validate(token, host)
+	valid, err := tkn.Validate(token, host)
 	if err != nil {
-		return ValidateResponse{}, err
+		return false, err
 	}
 
 	if valid != true {
-		return ValidateResponse{false, message}, err
+		return false, err
 	}
 
-	return ValidateResponse{true, message}, nil
+	return true, nil
 }
