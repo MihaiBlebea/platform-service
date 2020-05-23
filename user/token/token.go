@@ -100,14 +100,6 @@ func New(userID int, email string) (*Token, error) {
 
 // NewFromRaw returns a Token from raw data
 func NewFromRaw(id, userID int, token, hash string, active bool, host string, expires string, created, updated time.Time) (*Token, error) {
-	// createdTime, err := time.Parse(timeFormat, created)
-	// if err != nil {
-	// 	return &Token{}, err
-	// }
-	// updatedTime, err := time.Parse(timeFormat, created)
-	// if err != nil {
-	// 	return &Token{}, err
-	// }
 	return &Token{
 		ID:         id,
 		UserID:     userID,
