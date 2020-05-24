@@ -7,9 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
 	u "github.com/MihaiBlebea/Wordpress/platform/user"
-	"github.com/MihaiBlebea/Wordpress/platform/user/token"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
 )
@@ -75,29 +73,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	health["status"] = "OK"
 
 	err := json.NewEncoder(w).Encode(health)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-}
-
-func tokensGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if authenticate(r) == false {
-		http.Error(w, "Not authenticated", 401)
-		return
-	}
-
-	user, err := authenticatedUser(r)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	tokenRepo := token.Repo(c.Mysql())
-	tokens, _, err := tokenRepo.FindByUserID(user.ID)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = json.NewEncoder(w).Encode(tokens)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	}
