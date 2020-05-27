@@ -2,52 +2,41 @@ package email
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"text/template"
+	"log"
+	"net/http"
+	"os"
 )
 
-const senderName = "Mihai"
-const senderEmail = "mihai@getchip.uk"
-
-// Provider interface for email providers
-type Provider interface {
-	Send() (string, error)
-	SetSender(name, email string)
-	SetReceiver(name, email string)
-	SetHTML(html string)
-	SetSubject(subject string)
+// Service connects to the email-service microservice
+type Service struct {
 }
 
-// Details for email sending
-type Details struct {
-	TemplateName  string
-	Data          interface{}
-	Subject       string
-	ReceiverName  string
-	ReceiverEmail string
-}
-
-// Send email
-func Send(provider Provider, details Details) (string, error) {
-	tmpl, err := template.ParseFiles(fmt.Sprintf("./email/templates/%s.html", details.TemplateName))
+// Send sends an email to the microservice
+func (s *Service) Send(kind string, data map[string]interface{}) (err error) {
+	b, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	var tpl bytes.Buffer
-	if err := tmpl.Execute(&tpl, details.Data); err != nil {
-		return "", err
+	if os.Getenv("EMAIL_HOST") == "" || os.Getenv("EMAIL_PORT") == "" {
+		return errors.New("Undefined env variable")
 	}
 
-	result := tpl.String()
+	if _, ok := data["email"]; !ok {
+		return errors.New("Data should contain key email")
+	}
 
-	provider.SetSender(senderName, senderEmail)
-	provider.SetReceiver(details.ReceiverName, details.ReceiverEmail)
-	provider.SetHTML(result)
-	provider.SetSubject(details.Subject)
-	response, err := provider.Send()
+	baseURL := fmt.Sprintf("http://%s:%s/send/%s", os.Getenv("EMAIL_HOST"), os.Getenv("EMAIL_PORT"), kind)
+
+	log.Println(data)
+	response, err := http.Post(baseURL, "application/json", bytes.NewReader(b))
 	if err != nil {
-		return "", err
+		return err
 	}
-	return response, err
+	log.Println(response)
+
+	return nil
 }

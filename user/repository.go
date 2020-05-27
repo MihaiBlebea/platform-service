@@ -1,6 +1,8 @@
 package user
 
 import (
+	"errors"
+
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
 
 	// Mysql driver for mysql
@@ -86,6 +88,35 @@ func (r *Repository) Remove(user *User) error {
 		return err
 	}
 	return nil
+}
+
+// Update CRUD operation for User
+func (r *Repository) Update(user *User) (int, error) {
+	if user.ID == 0 {
+		return 0, errors.New("Could not update user as it doesn't have an id")
+	}
+
+	client, err := r.Connection.Connect()
+	if err != nil {
+		return 0, err
+	}
+	defer client.Close()
+
+	stmt, err := client.Prepare("UPDATE users SET name = ?, email = ?, password = ?, jwt_token = ?, active = ?, consent = ? WHERE id=?")
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := stmt.Exec(user.Name, user.Email, user.Password, user.JWT, user.Active, user.Consent, user.ID)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
 }
 
 // FindByID returns a user by id

@@ -20,6 +20,9 @@ func Serve(port string) {
 
 	router.POST("/user/register", registerHandler)
 	router.POST("/user/login", loginHandler)
+	router.GET("/user/password/reset", passwordGetHandler)
+	router.POST("/user/password/reset", passwordPostHandler)
+
 	router.GET("/user/tokens", tokensGetHandler)
 	router.POST("/user/token/validate", vaidateTokenHandler)
 	router.POST("/user/token/activate", activateTokenHandler)
