@@ -30,6 +30,7 @@ func (r *Repository) Migrate() error {
 		jwt_token VARCHAR(255) DEFAULT NULL,
 		active INT(1) DEFAULT 1,
 		consent INT(1) DEFAULT 0,
+		confirm_code VARCHAR(8) DEFAULT "",
 		created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		PRIMARY KEY (id));`
@@ -53,12 +54,24 @@ func (r *Repository) Add(user *User) (int, error) {
 	}
 	defer client.Close()
 
-	stmt, err := client.Prepare("INSERT INTO users (name, email, password, jwt_token, active, consent, created) VALUES (?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := client.Prepare(`
+		INSERT INTO users 
+			(name, email, password, jwt_token, active, consent, created) 
+		VALUES 
+			(?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.Exec(user.Name, user.Email, user.Password, user.JWT, user.Active, user.Consent, user.Created)
+	res, err := stmt.Exec(
+		user.Name,
+		user.Email,
+		user.Password,
+		user.JWT,
+		user.Active,
+		user.Consent,
+		user.Created,
+	)
 	if err != nil {
 		return 0, err
 	}
@@ -102,12 +115,27 @@ func (r *Repository) Update(user *User) (int, error) {
 	}
 	defer client.Close()
 
-	stmt, err := client.Prepare("UPDATE users SET name = ?, email = ?, password = ?, jwt_token = ?, active = ?, consent = ? WHERE id=?")
+	stmt, err := client.Prepare(`
+		UPDATE 
+			users 
+		SET 
+			name = ?, email = ?, password = ?, jwt_token = ?, active = ?, consent = ?, confirm_code = ? 
+		WHERE 
+			id=?`)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.Exec(user.Name, user.Email, user.Password, user.JWT, user.Active, user.Consent, user.ID)
+	res, err := stmt.Exec(
+		user.Name,
+		user.Email,
+		user.Password,
+		user.JWT,
+		user.Active,
+		user.Consent,
+		user.ConfirmCode,
+		user.ID,
+	)
 	if err != nil {
 		return 0, err
 	}
@@ -120,91 +148,86 @@ func (r *Repository) Update(user *User) (int, error) {
 }
 
 // FindByID returns a user by id
-func (r *Repository) FindByID(userID int) (*User, int, error) {
-	client, err := r.Connection.Connect()
+func (r *Repository) FindByID(userID int) (user *User, count int, err error) {
+	users, count, err := r.findBy("SELECT * FROM users WHERE id = ?", userID)
 	if err != nil {
-		return &User{}, 0, err
+		return user, count, err
 	}
-	defer client.Close()
-
-	rows, err := client.Query("SELECT * FROM users WHERE id = ?", userID)
-	if err != nil {
-		return &User{}, 0, err
+	if count == 0 {
+		return user, count, nil
 	}
-
-	var users []User
-	for rows.Next() {
-		var user User
-
-		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.JWT, &user.Active, &user.Consent, &user.Created, &user.Updated)
-		if err != nil {
-			return &User{}, 0, err
-		}
-		users = append(users, user)
-	}
-	if len(users) == 0 {
-		return &User{}, 0, nil
-	}
-	return &users[0], len(users), nil
+	return &users[0], 1, nil
 }
 
 // FindByEmail returns a user by id
-func (r *Repository) FindByEmail(email string) (*User, int, error) {
-	client, err := r.Connection.Connect()
+func (r *Repository) FindByEmail(email string) (user *User, count int, err error) {
+	users, count, err := r.findBy("SELECT * FROM users WHERE email = ?", email)
 	if err != nil {
-		return &User{}, 0, err
+		return user, count, err
 	}
-	defer client.Close()
-
-	rows, err := client.Query("SELECT * FROM users WHERE email = ?", email)
-	if err != nil {
-		return &User{}, 0, err
+	if count == 0 {
+		return user, count, nil
 	}
-
-	var users []User
-	for rows.Next() {
-		var user User
-
-		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.JWT, &user.Active, &user.Consent, &user.Created, &user.Updated)
-		if err != nil {
-			return &User{}, 0, err
-		}
-		users = append(users, user)
-	}
-	if len(users) == 0 {
-		return &User{}, 0, nil
-	}
-	return &users[0], len(users), nil
+	return &users[0], 1, nil
 }
 
 // FindByJWT returns a user based on a jwt token
-func (r *Repository) FindByJWT(token string) (*User, int, error) {
+func (r *Repository) FindByJWT(token string) (user *User, count int, err error) {
+	users, count, err := r.findBy("SELECT * FROM users WHERE jwt_token = ?", token)
+	if err != nil {
+		return user, count, err
+	}
+	if count == 0 {
+		return user, count, nil
+	}
+	return &users[0], 1, nil
+}
+
+// FindByConfirmCode returns a user base on confirm code
+func (r *Repository) FindByConfirmCode(confirmCode string) (user *User, count int, err error) {
+	users, count, err := r.findBy("SELECT * FROM users WHERE confirm_code = ?", confirmCode)
+	if err != nil {
+		return user, count, err
+	}
+	if count == 0 {
+		return user, count, nil
+	}
+	return &users[0], 1, nil
+}
+
+func (r *Repository) findBy(sql string, params ...interface{}) (users []User, count int, err error) {
 	client, err := r.Connection.Connect()
 	if err != nil {
-		return &User{}, 0, err
+		return users, count, err
 	}
 	defer client.Close()
 
-	rows, err := client.Query("SELECT * FROM users WHERE jwt_token = ?", token)
+	rows, err := client.Query(sql, params...)
 	if err != nil {
-		return &User{}, 0, err
+		return users, count, err
 	}
 
-	var users []User
 	for rows.Next() {
 		var user User
-
-		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.JWT, &user.Active, &user.Consent, &user.Created, &user.Updated)
+		err = rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Email,
+			&user.Password,
+			&user.JWT,
+			&user.Active,
+			&user.Consent,
+			&user.ConfirmCode,
+			&user.Created,
+			&user.Updated,
+		)
 		if err != nil {
-			return &User{}, 0, err
+			return users, count, err
 		}
 		users = append(users, user)
 	}
 
-	if len(users) == 0 {
-		return &User{}, 0, nil
-	}
-	return &users[0], len(users), nil
+	return users, len(users), nil
 }
 
 // Repo returns a repository

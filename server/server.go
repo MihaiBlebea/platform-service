@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 	"strings"
@@ -50,10 +50,10 @@ func Serve(port string) {
 
 func authenticate(r *http.Request) bool {
 	authorization := r.Header.Get("Authorization")
-	fmt.Println("TOKEN", authorization)
-
+	if authorization == "" {
+		return false
+	}
 	token := strings.TrimSpace(strings.Split(authorization, "Bearer")[1])
-
 	found, _, err := u.Authenticate(token)
 	if err != nil {
 		return false
@@ -61,12 +61,15 @@ func authenticate(r *http.Request) bool {
 	return found
 }
 
-func authenticatedUser(r *http.Request) (*u.User, error) {
+func authenticatedUser(r *http.Request) (user *u.User, err error) {
 	authorization := r.Header.Get("Authorization")
+	if authorization == "" {
+		return user, errors.New("Could not find JWT token in request")
+	}
 	token := strings.TrimSpace(strings.Split(authorization, "Bearer")[1])
-	_, user, err := u.Authenticate(token)
+	_, user, err = u.Authenticate(token)
 	if err != nil {
-		return &u.User{}, err
+		return user, err
 	}
 	return user, nil
 }

@@ -27,7 +27,7 @@ type ResetPasswordConfirmResponse struct {
 }
 
 // Execute runs the ResetPasswordConfirmService
-func (s *ResetPasswordConfirmService) Execute(email string) (response ResetPasswordConfirmResponse, err error) {
+func (s *ResetPasswordConfirmService) Execute(confirmEndpoint, email string) (response ResetPasswordConfirmResponse, err error) {
 	// Try and find a user by email
 	user, count, err := s.UserRepository.FindByEmail(email)
 	if err != nil {
@@ -37,11 +37,18 @@ func (s *ResetPasswordConfirmService) Execute(email string) (response ResetPassw
 		return response, fmt.Errorf("No user found with email %s", email)
 	}
 
+	// Generate random confirmation code
+	user.ConfirmCode = u.GenerateRandomPassword()
+	_, err = s.UserRepository.Update(user)
+	if err != nil {
+		return response, err
+	}
+
 	// If user is found, then send him an email with a confirmation link
 	data := make(map[string]interface{})
 	data["name"] = user.Name
 	data["email"] = user.Email
-	data["confirmUrl"] = "http://localhost:8000/reset/password?email=" + user.Email
+	data["confirmUrl"] = fmt.Sprintf("%s?confirmCode=%s", confirmEndpoint, user.ConfirmCode)
 
 	s.EmailService.Send("confirm-password", data)
 

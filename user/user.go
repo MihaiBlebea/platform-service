@@ -12,15 +12,16 @@ import (
 
 // User model
 type User struct {
-	ID       int       `json:"id"`
-	Name     string    `json:"name"`
-	Email    string    `json:"email"`
-	Password string    `json:"password"`
-	JWT      string    `json:"jwt"`
-	Active   bool      `json:"active"`
-	Consent  bool      `json:"consent"`
-	Created  time.Time `json:"created"`
-	Updated  time.Time `json:"updated"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	Password    string    `json:"password"`
+	JWT         string    `json:"jwt"`
+	Active      bool      `json:"active"`
+	Consent     bool      `json:"consent"`
+	ConfirmCode string    `json:"confirm_code"`
+	Created     time.Time `json:"created"`
+	Updated     time.Time `json:"updated"`
 }
 
 // Username returns a combination of firstname and lastname
@@ -87,18 +88,4 @@ func New(name, email, password string, consent bool) (*User, error) {
 		return &User{}, err
 	}
 	return user, nil
-}
-
-// NewFromRaw returns a User model from database
-func NewFromRaw(id int, name, email, password string, active, consent bool, created, updated time.Time) *User {
-	return &User{
-		ID:       id,
-		Name:     name,
-		Email:    email,
-		Password: password,
-		Active:   active,
-		Consent:  consent,
-		Created:  created,
-		Updated:  updated,
-	}
 }

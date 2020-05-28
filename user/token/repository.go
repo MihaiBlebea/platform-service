@@ -103,7 +103,6 @@ func (r *Repository) FindByUserID(userID int) (*[]Token, int, error) {
 
 // FindToken returns a token by it's string value
 func (r *Repository) FindToken(token string) (*Token, int, error) {
-
 	tokens, count, err := r.findBy("SELECT * FROM tokens WHERE token = ?", token)
 	if err != nil {
 		return &Token{}, 0, err

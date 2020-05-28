@@ -26,18 +26,21 @@ type ResetUserPasswordResponse struct {
 }
 
 // Execute runs the ResetUserPasswordService
-func (s *ResetUserPasswordService) Execute(email, newPassword string) (response ResetUserPasswordResponse, err error) {
+func (s *ResetUserPasswordService) Execute(confirmCode, newPassword string) (response ResetUserPasswordResponse, err error) {
 	// Get user by email
-	user, count, err := s.UserRepository.FindByEmail(email)
+	user, count, err := s.UserRepository.FindByConfirmCode(confirmCode)
 	if err != nil {
 		return response, err
 	}
 	if count == 0 {
-		return response, fmt.Errorf("No user found with email %s", email)
+		return response, fmt.Errorf("No user found with confirm code %s", confirmCode)
 	}
 
 	// Update the user password
 	user.HashPassword(newPassword)
+
+	// Remove confirm code
+	user.ConfirmCode = ""
 
 	// Update user JWT token
 	err = user.GenerateJWT()

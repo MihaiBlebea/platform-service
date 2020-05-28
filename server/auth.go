@@ -67,8 +67,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 func passwordPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
-		Email    string
-		Password string
+		ConfirmCode string
+		Password    string
 	}
 	decoder := json.NewDecoder(r.Body)
 	var body Body
@@ -79,7 +79,7 @@ func passwordPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 	}
 
 	service := usrpassreset.New()
-	response, err := service.Execute(body.Email, body.Password)
+	response, err := service.Execute(body.ConfirmCode, body.Password)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -99,8 +99,14 @@ func passwordGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		return
 	}
 
+	confirmEndpoint := params.Get("confirmEndpoint")
+	if confirmEndpoint == "" {
+		http.Error(w, "No confirmEndpoint supplied", 500)
+		return
+	}
+
 	service := usrpassconfirm.New()
-	response, err := service.Execute(email)
+	response, err := service.Execute(confirmEndpoint, email)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

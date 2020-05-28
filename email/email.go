@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 )
@@ -31,12 +30,11 @@ func (s *Service) Send(kind string, data map[string]interface{}) (err error) {
 
 	baseURL := fmt.Sprintf("http://%s:%s/send/%s", os.Getenv("EMAIL_HOST"), os.Getenv("EMAIL_PORT"), kind)
 
-	log.Println(data)
 	response, err := http.Post(baseURL, "application/json", bytes.NewReader(b))
 	if err != nil {
 		return err
 	}
-	log.Println(response)
+	fmt.Println("Email sender response", response)
 
 	return nil
 }
