@@ -2,6 +2,7 @@ package usrpassconfirm
 
 import (
 	"fmt"
+	"os"
 
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
 	e "github.com/MihaiBlebea/Wordpress/platform/email"
@@ -48,7 +49,7 @@ func (s *ResetPasswordConfirmService) Execute(confirmEndpoint, email string) (re
 	data := make(map[string]interface{})
 	data["name"] = user.Name
 	data["email"] = user.Email
-	data["confirmUrl"] = fmt.Sprintf("%s?confirmCode=%s", confirmEndpoint, user.ConfirmCode)
+	data["confirmUrl"] = os.Getenv("CLIENT_DO_ENDPOINT") + "?work=confirm-password&code=" + user.ConfirmCode
 
 	s.EmailService.Send("confirm-password", data)
 

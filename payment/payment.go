@@ -4,12 +4,6 @@ import (
 	"time"
 )
 
-// Provider Payment interface
-type Provider interface {
-	Connect()
-	Payment() (string, error)
-}
-
 // Payment model
 type Payment struct {
 	ID          int       `json:"id"`
@@ -22,28 +16,30 @@ type Payment struct {
 	Updated     time.Time `json:"updated"`
 }
 
-// Details DTO
-type Details struct {
-	UserID    int     `json:"user_id"`
-	ProductID int     `json:"product_id"`
-	Price     float64 `json:"price"`
-	Currency  string  `json:"currency"`
+// Params DTO
+type Params struct {
+	UserID    int
+	ProductID int
+	Price     float64
+	Nonce     string
+	// Currency  string  `json:"currency"`
 }
 
-// Make a new transaction with the payment provider
-func Make(provider Provider, repository Repository, details Details) (payment Payment, err error) {
-	provider.Connect()
-	_, err = provider.Payment()
+// Pay a new transaction with the payment provider
+func Pay(repository Repository, params Params) (payment Payment, err error) {
+	provider := BraintreeProvider{}
+
+	_, err = provider.paymentWithNonce(params.Nonce, int64(20000))
 	if err != nil {
 		return payment, err
 	}
 
 	payment = Payment{
-		UserID:      details.UserID,
-		ProductID:   details.ProductID,
+		UserID:      params.UserID,
+		ProductID:   params.ProductID,
 		PaymentCode: "abcd_payment",
-		Price:       details.Price,
-		Currency:    details.Currency,
+		Price:       params.Price,
+		Currency:    "GBP",
 		Created:     time.Now(),
 	}
 
@@ -54,4 +50,11 @@ func Make(provider Provider, repository Repository, details Details) (payment Pa
 	payment.ID = paymentID
 
 	return payment, nil
+}
+
+// GetClientToken returns a token that can be used in frontend for getting a nonce
+func GetClientToken() (token string, err error) {
+	provider := BraintreeProvider{}
+
+	return provider.getClientToken()
 }

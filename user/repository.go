@@ -56,9 +56,9 @@ func (r *Repository) Add(user *User) (int, error) {
 
 	stmt, err := client.Prepare(`
 		INSERT INTO users 
-			(name, email, password, jwt_token, active, consent, created) 
+			(name, email, password, jwt_token, active, consent, confirm_code, created) 
 		VALUES 
-			(?, ?, ?, ?, ?, ?, ?)`)
+			(?, ?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
@@ -70,6 +70,7 @@ func (r *Repository) Add(user *User) (int, error) {
 		user.JWT,
 		user.Active,
 		user.Consent,
+		user.ConfirmCode,
 		user.Created,
 	)
 	if err != nil {

@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/MihaiBlebea/Wordpress/platform/services/usregister"
+	useremailconfirm "github.com/MihaiBlebea/Wordpress/platform/services/user-email-confirm"
+	useregister "github.com/MihaiBlebea/Wordpress/platform/services/user-register"
 	"github.com/MihaiBlebea/Wordpress/platform/services/usrlogin"
 	"github.com/MihaiBlebea/Wordpress/platform/services/usrpassconfirm"
 	"github.com/MihaiBlebea/Wordpress/platform/services/usrpassreset"
@@ -37,7 +38,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
-func registerHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
 		Name     string
 		Email    string
@@ -52,8 +53,33 @@ func registerHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		return
 	}
 
-	service := usregister.New()
+	service := useregister.New()
 	response, err := service.Execute(body.Name, body.Email, body.Password, body.Consent)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+}
+
+func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	type Body struct {
+		Code string
+	}
+	decoder := json.NewDecoder(r.Body)
+	var body Body
+	err := decoder.Decode(&body)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	service := useremailconfirm.New()
+	response, err := service.Execute(body.Code)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

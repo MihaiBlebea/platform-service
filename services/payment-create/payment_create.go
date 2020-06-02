@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	e "github.com/MihaiBlebea/Wordpress/platform/email"
 	"github.com/MihaiBlebea/Wordpress/platform/payment"
 	p "github.com/MihaiBlebea/Wordpress/platform/product"
 	u "github.com/MihaiBlebea/Wordpress/platform/user"
@@ -18,12 +19,14 @@ func New() *CreatePaymentService {
 	productRepository := *p.Repo(conn)
 	tokenRepository := *t.Repo(conn)
 	paymentRepository := *payment.Repo(conn)
+	emailService := e.Service{}
 
 	return &CreatePaymentService{
 		userRepository,
 		productRepository,
 		tokenRepository,
 		paymentRepository,
+		emailService,
 	}
 }
 
@@ -33,6 +36,7 @@ type CreatePaymentService struct {
 	ProductRepository p.Repository
 	TokenRepository   t.Repository
 	PaymentRepository payment.Repository
+	EmailService      e.Service
 }
 
 // CreatePaymentResponse is the response for CreatePaymentService
@@ -49,7 +53,7 @@ type CreatePaymentResponse struct {
 }
 
 // ExecuteWithAuth creates a payment when the user is logged in the platform
-func (s *CreatePaymentService) ExecuteWithAuth(token, productCode string) (response CreatePaymentResponse, err error) {
+func (s *CreatePaymentService) ExecuteWithAuth(token, nonce, paymentType, productCode string) (response CreatePaymentResponse, err error) {
 	user, count, _ := s.UserRepository.FindByJWT(token)
 	if count == 0 {
 		return response, fmt.Errorf("Could not find user with token %s", token)
@@ -62,16 +66,15 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, productCode string) (respo
 	}
 
 	// Make payment with payment provider
-	details := payment.Details{
+	params := payment.Params{
 		UserID:    user.ID,
 		ProductID: product.ID,
 		Price:     product.Price,
-		Currency:  "GBP",
+		Nonce:     nonce,
 	}
-	pay, err := payment.Make(
-		&payment.BraintreeProvider{},
+	pay, err := payment.Pay(
 		s.PaymentRepository,
-		details,
+		params,
 	)
 	if err != nil {
 		return response, err
@@ -89,6 +92,16 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, productCode string) (respo
 		}
 	}
 
+	// Send an invoice email
+	data := make(map[string]interface{})
+	data["name"] = user.Name
+	data["email"] = user.Email
+	data["product"] = product.Name
+	err = s.EmailService.Send("payment", data)
+	if err != nil {
+		return response, err
+	}
+
 	return CreatePaymentResponse{
 		PaymentID:   pay.ID,
 		UserID:      user.ID,
@@ -103,7 +116,7 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, productCode string) (respo
 }
 
 // Execute creates a payment when the user is not logged in the platform
-func (s *CreatePaymentService) Execute(productCode, firstName, lastName, email string) (response CreatePaymentResponse, err error) {
+func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymentType, productCode string) (response CreatePaymentResponse, err error) {
 	user, err := u.New(
 		fmt.Sprintf("%s %s", firstName, lastName),
 		email,
@@ -127,16 +140,15 @@ func (s *CreatePaymentService) Execute(productCode, firstName, lastName, email s
 	}
 
 	// Make payment with payment provider
-	details := payment.Details{
+	params := payment.Params{
 		UserID:    user.ID,
 		ProductID: product.ID,
 		Price:     product.Price,
-		Currency:  "GBP",
+		Nonce:     nonce,
 	}
-	pay, err := payment.Make(
-		&payment.BraintreeProvider{},
+	pay, err := payment.Pay(
 		s.PaymentRepository,
-		details,
+		params,
 	)
 	if err != nil {
 		return response, err
@@ -152,6 +164,16 @@ func (s *CreatePaymentService) Execute(productCode, firstName, lastName, email s
 		if err != nil {
 			return response, err
 		}
+	}
+
+	// Send an invoice email
+	data := make(map[string]interface{})
+	data["name"] = user.Name
+	data["email"] = user.Email
+	data["product"] = product.Name
+	err = s.EmailService.Send("payment", data)
+	if err != nil {
+		return response, err
 	}
 
 	return CreatePaymentResponse{

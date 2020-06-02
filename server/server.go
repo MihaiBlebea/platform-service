@@ -18,8 +18,10 @@ func Serve(port string) {
 
 	router.GET("/", indexHandler)
 
-	router.POST("/user/register", registerHandler)
+	router.POST("/user/register", registerPostHandler)
+	router.POST("/user/register-confirm-email", registerConfirmPostHandler)
 	router.POST("/user/login", loginHandler)
+
 	router.GET("/user/password/reset", passwordGetHandler)
 	router.POST("/user/password/reset", passwordPostHandler)
 
@@ -30,6 +32,7 @@ func Serve(port string) {
 
 	router.GET("/product", productGetHandler)
 	router.POST("/payment", paymentPostHandler)
+	router.GET("/payment/client-token", paymentTokenGetHandler)
 
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

@@ -58,8 +58,8 @@ func (u *User) GenerateJWT() error {
 // GenerateRandomPassword generates a random password for the user
 func GenerateRandomPassword() string {
 	rand.Seed(time.Now().UnixNano())
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
-		"abcdefghijklmnopqrstuvwxyzåäö" +
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"abcdefghijklmnopqrstuvwxyz" +
 		"0123456789")
 	length := 8
 	var b strings.Builder
