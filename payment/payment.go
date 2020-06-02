@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"errors"
 	"time"
 )
 
@@ -22,14 +23,18 @@ type Params struct {
 	ProductID int
 	Price     float64
 	Nonce     string
-	// Currency  string  `json:"currency"`
 }
 
 // Pay a new transaction with the payment provider
 func Pay(repository Repository, params Params) (payment Payment, err error) {
 	provider := BraintreeProvider{}
 
-	_, err = provider.paymentWithNonce(params.Nonce, int64(20000))
+	err = validate(params)
+	if err != nil {
+		return payment, err
+	}
+
+	_, err = provider.paymentWithNonce(params.Nonce, int64(params.Price*100))
 	if err != nil {
 		return payment, err
 	}
@@ -57,4 +62,23 @@ func GetClientToken() (token string, err error) {
 	provider := BraintreeProvider{}
 
 	return provider.getClientToken()
+}
+
+func validate(params Params) error {
+	if params.UserID == 0 {
+		return errors.New("UserID is not set")
+	}
+
+	if params.Price == 0 {
+		return errors.New("Price is not set")
+	}
+
+	if params.ProductID == 0 {
+		return errors.New("ProductID is not set")
+	}
+
+	if params.Nonce == "" {
+		return errors.New("Nonce is not set")
+	}
+	return nil
 }
