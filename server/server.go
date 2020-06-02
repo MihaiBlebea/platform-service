@@ -32,7 +32,7 @@ func Serve(port string) {
 
 	router.GET("/product", productGetHandler)
 	router.POST("/payment", paymentPostHandler)
-	router.GET("/payment/client-token", paymentTokenGetHandler)
+	router.GET("/payment/checkout", paymentCheckoutGetHandler)
 
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

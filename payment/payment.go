@@ -2,8 +2,11 @@ package payment
 
 import (
 	"errors"
+	"math"
 	"time"
 )
+
+const tva = 0.20
 
 // Payment model
 type Payment struct {
@@ -17,6 +20,10 @@ type Payment struct {
 	Updated     time.Time `json:"updated"`
 }
 
+// Service is a payment service
+type Service struct {
+}
+
 // Params DTO
 type Params struct {
 	UserID    int
@@ -26,19 +33,22 @@ type Params struct {
 }
 
 // Pay a new transaction with the payment provider
-func Pay(repository Repository, params Params) (payment Payment, err error) {
+func (s *Service) Pay(repository Repository, params Params) (payment Payment, err error) {
 	provider := BraintreeProvider{}
 
-	err = validate(params)
+	// Validate the params
+	err = s.validate(params)
 	if err != nil {
 		return payment, err
 	}
 
+	// make a new payment with nonce
 	_, err = provider.paymentWithNonce(params.Nonce, int64(params.Price*100))
 	if err != nil {
 		return payment, err
 	}
 
+	// Save the payment information in the db
 	payment = Payment{
 		UserID:      params.UserID,
 		ProductID:   params.ProductID,
@@ -54,17 +64,24 @@ func Pay(repository Repository, params Params) (payment Payment, err error) {
 	}
 	payment.ID = paymentID
 
+	// Return response
 	return payment, nil
 }
 
 // GetClientToken returns a token that can be used in frontend for getting a nonce
-func GetClientToken() (token string, err error) {
+func (s *Service) GetClientToken() (token string, err error) {
 	provider := BraintreeProvider{}
 
 	return provider.getClientToken()
 }
 
-func validate(params Params) error {
+// GetTotalPrice returns price runded up to nearest 2 decimals after adding tva
+func (s *Service) GetTotalPrice(basePrice float64) float64 {
+	total := basePrice + (basePrice * tva)
+	return math.Ceil(total*100) / 100
+}
+
+func (s *Service) validate(params Params) error {
 	if params.UserID == 0 {
 		return errors.New("UserID is not set")
 	}

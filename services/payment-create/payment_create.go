@@ -66,13 +66,14 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, nonce, paymentType, produc
 	}
 
 	// Make payment with payment provider
+	paymentService := payment.Service{}
 	params := payment.Params{
 		UserID:    user.ID,
 		ProductID: product.ID,
 		Price:     product.Price,
 		Nonce:     nonce,
 	}
-	pay, err := payment.Pay(
+	pay, err := paymentService.Pay(
 		s.PaymentRepository,
 		params,
 	)
@@ -140,13 +141,14 @@ func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymen
 	}
 
 	// Make payment with payment provider
+	paymentService := payment.Service{}
 	params := payment.Params{
 		UserID:    user.ID,
 		ProductID: product.ID,
 		Price:     product.Price,
 		Nonce:     nonce,
 	}
-	pay, err := payment.Pay(
+	pay, err := paymentService.Pay(
 		s.PaymentRepository,
 		params,
 	)
