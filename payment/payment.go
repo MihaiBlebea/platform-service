@@ -14,7 +14,7 @@ type Payment struct {
 	UserID      int       `json:"user_id"`
 	ProductID   int       `json:"product_id"`
 	PaymentCode string    `json:"payment_code"`
-	Price       float64   `json:"price"`
+	Price       int       `json:"price"`
 	Currency    string    `json:"currency"`
 	Created     time.Time `json:"created"`
 	Updated     time.Time `json:"updated"`
@@ -28,7 +28,7 @@ type Service struct {
 type Params struct {
 	UserID    int
 	ProductID int
-	Price     float64
+	Price     Amount
 	Nonce     string
 }
 
@@ -43,7 +43,7 @@ func (s *Service) Pay(repository Repository, params Params) (payment Payment, er
 	}
 
 	// make a new payment with nonce
-	_, err = provider.paymentWithNonce(params.Nonce, int64(params.Price*100))
+	transaction, err := provider.paymentWithNonce(params.Nonce, params.Price.IntWithTVA())
 	if err != nil {
 		return payment, err
 	}
@@ -52,8 +52,8 @@ func (s *Service) Pay(repository Repository, params Params) (payment Payment, er
 	payment = Payment{
 		UserID:      params.UserID,
 		ProductID:   params.ProductID,
-		PaymentCode: "abcd_payment",
-		Price:       params.Price,
+		PaymentCode: transaction.Id,
+		Price:       params.Price.IntWithTVA(),
 		Currency:    "GBP",
 		Created:     time.Now(),
 	}
@@ -78,6 +78,7 @@ func (s *Service) GetClientToken() (token string, err error) {
 // GetTotalPrice returns price runded up to nearest 2 decimals after adding tva
 func (s *Service) GetTotalPrice(basePrice float64) float64 {
 	total := basePrice + (basePrice * tva)
+
 	return math.Ceil(total*100) / 100
 }
 
@@ -86,7 +87,7 @@ func (s *Service) validate(params Params) error {
 		return errors.New("UserID is not set")
 	}
 
-	if params.Price == 0 {
+	if params.Price.GetInt() == 0 {
 		return errors.New("Price is not set")
 	}
 
@@ -97,5 +98,6 @@ func (s *Service) validate(params Params) error {
 	if params.Nonce == "" {
 		return errors.New("Nonce is not set")
 	}
+
 	return nil
 }

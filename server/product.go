@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/MihaiBlebea/Wordpress/platform/services/prodget"
+	prodget "github.com/MihaiBlebea/Wordpress/platform/services/product-get"
 	"github.com/julienschmidt/httprouter"
 )
 

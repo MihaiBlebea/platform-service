@@ -11,11 +11,13 @@ import (
 	paycreate "github.com/MihaiBlebea/Wordpress/platform/services/payment-create"
 )
 
+// Post a payment request with or without auth. If no auth code, then create account for user
 func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
 		FirstName   string
 		LastName    string
 		Email       string
+		Password    string
 		Nonce       string
 		PaymentType string
 		Consent     bool
@@ -53,6 +55,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 			body.FirstName,
 			body.LastName,
 			body.Email,
+			body.Password,
 			body.Nonce,
 			body.PaymentType,
 			body.ProductCode,
@@ -70,6 +73,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	}
 }
 
+// Get all the information to render the checkout page
 func paymentCheckoutGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params := r.URL.Query()
 	code := params.Get("code")

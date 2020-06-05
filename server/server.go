@@ -24,6 +24,7 @@ func Serve(port string) {
 
 	router.GET("/user/password/reset", passwordGetHandler)
 	router.POST("/user/password/reset", passwordPostHandler)
+	router.GET("/user/email-validate", emailValidateGetHandler)
 
 	router.GET("/user/tokens", tokensGetHandler)
 	router.POST("/user/token/validate", vaidateTokenHandler)

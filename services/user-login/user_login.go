@@ -21,6 +21,7 @@ type LoginUserResponse struct {
 	ID      int    `json:"id"`
 	Message string `json:"message"`
 	JWT     string `json:"jwt_token"`
+	Email   string `json:"email"`
 	Success bool   `json:"success"`
 }
 
@@ -47,6 +48,7 @@ func (s *LoginUserService) successResponse(user *u.User) LoginUserResponse {
 		ID:      user.ID,
 		JWT:     user.JWT,
 		Message: "Authentication successfull",
+		Email:   user.Email,
 		Success: true,
 	}
 }

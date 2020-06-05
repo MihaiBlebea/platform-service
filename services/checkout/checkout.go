@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	"github.com/MihaiBlebea/Wordpress/platform/payment"
 	pay "github.com/MihaiBlebea/Wordpress/platform/payment"
 	p "github.com/MihaiBlebea/Wordpress/platform/product"
 	u "github.com/MihaiBlebea/Wordpress/platform/user"
@@ -72,9 +73,11 @@ func (s *Service) Execute(code, jwtToken string) (response Response, err error) 
 		response.UserEmail = nil
 	}
 
+	amount := payment.NewAmount(product.Price, product.Currency)
+
 	response.Name = product.Name
-	response.Price = product.Price
-	response.PriceTotal = s.PaymentService.GetTotalPrice(product.Price)
+	response.Price = amount.GetFloat()
+	response.PriceTotal = amount.FloatWithTVA()
 	response.Code = product.Code
 	response.ClientToken = token
 

@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	useremailconfirm "github.com/MihaiBlebea/Wordpress/platform/services/user-email-confirm"
+	usremailvalidate "github.com/MihaiBlebea/Wordpress/platform/services/user-email-validate"
+	usrlogin "github.com/MihaiBlebea/Wordpress/platform/services/user-login"
 	useregister "github.com/MihaiBlebea/Wordpress/platform/services/user-register"
-	"github.com/MihaiBlebea/Wordpress/platform/services/usrlogin"
 	"github.com/MihaiBlebea/Wordpress/platform/services/usrpassconfirm"
 	"github.com/MihaiBlebea/Wordpress/platform/services/usrpassreset"
 	"github.com/julienschmidt/httprouter"
 )
 
+// Login to the platform
 func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
 		Email    string
@@ -38,6 +40,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
+// Register to the platform, without confirming your account
 func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
 		Name     string
@@ -66,6 +69,7 @@ func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 	}
 }
 
+// Confirm your email and activate your account
 func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
 		Code string
@@ -91,6 +95,7 @@ func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httpro
 	}
 }
 
+// Reset user's password
 func passwordPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
 		ConfirmCode string
@@ -117,6 +122,7 @@ func passwordPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 	}
 }
 
+// Validate user's email and redirect to change password page
 func passwordGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params := r.URL.Query()
 	email := params.Get("email")
@@ -133,6 +139,26 @@ func passwordGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 
 	service := usrpassconfirm.New()
 	response, err := service.Execute(confirmEndpoint, email)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+}
+
+func emailValidateGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	params := r.URL.Query()
+	email := params.Get("email")
+	if email == "" {
+		http.Error(w, "No emailsupplied", 500)
+	}
+
+	service := usremailvalidate.New()
+	response, err := service.Execute(email)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

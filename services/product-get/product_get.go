@@ -3,6 +3,8 @@ package prodget
 import (
 	"fmt"
 
+	"github.com/MihaiBlebea/Wordpress/platform/payment"
+
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
 	p "github.com/MihaiBlebea/Wordpress/platform/product"
 )
@@ -37,11 +39,13 @@ func (s *GetProductService) Execute(code string) (response GetProductResponse, e
 		return response, fmt.Errorf("Could not find product with code %s", code)
 	}
 
+	amount := payment.NewAmount(product.Price, product.Currency)
+
 	return GetProductResponse{
 		ID:       product.ID,
 		Code:     product.Code,
 		Name:     product.Name,
-		Price:    product.Price,
-		Currency: product.Currency,
+		Price:    amount.GetFloat(),
+		Currency: amount.GetCurrency(),
 	}, nil
 }

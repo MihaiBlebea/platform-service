@@ -24,7 +24,7 @@ func (r *Repository) Migrate() error {
 		id int NOT NULL AUTO_INCREMENT,
 		code VARCHAR(250) UNIQUE,
 		name VARCHAR(100) UNIQUE,
-		price FLOAT(6),
+		price INT(6),
 		currency VARCHAR(4),
 		active INT(1) DEFAULT 1,
 		created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

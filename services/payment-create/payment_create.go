@@ -66,11 +66,13 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, nonce, paymentType, produc
 	}
 
 	// Make payment with payment provider
+	amount := payment.NewAmount(product.Price, product.Currency)
+
 	paymentService := payment.Service{}
 	params := payment.Params{
 		UserID:    user.ID,
 		ProductID: product.ID,
-		Price:     product.Price,
+		Price:     *amount,
 		Nonce:     nonce,
 	}
 	pay, err := paymentService.Pay(
@@ -107,7 +109,7 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, nonce, paymentType, produc
 		PaymentID:   pay.ID,
 		UserID:      user.ID,
 		ProductID:   product.ID,
-		Price:       product.Price,
+		Price:       amount.GetFloat(),
 		Currency:    product.Currency,
 		ProductName: product.Name,
 		UserName:    user.Name,
@@ -117,17 +119,18 @@ func (s *CreatePaymentService) ExecuteWithAuth(token, nonce, paymentType, produc
 }
 
 // Execute creates a payment when the user is not logged in the platform
-func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymentType, productCode string) (response CreatePaymentResponse, err error) {
+func (s *CreatePaymentService) Execute(firstName, lastName, email, password, nonce, paymentType, productCode string) (response CreatePaymentResponse, err error) {
 	user, err := u.New(
 		fmt.Sprintf("%s %s", firstName, lastName),
 		email,
-		u.GenerateRandomPassword(),
+		password,
 		true,
 	)
 	if err != nil {
 		return response, err
 	}
 
+	// Add user to db
 	userID, err := s.UserRepository.Add(user)
 	if err != nil {
 		return response, err
@@ -141,11 +144,13 @@ func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymen
 	}
 
 	// Make payment with payment provider
+	amount := payment.NewAmount(product.Price, product.Currency)
+
 	paymentService := payment.Service{}
 	params := payment.Params{
 		UserID:    user.ID,
 		ProductID: product.ID,
-		Price:     product.Price,
+		Price:     *amount,
 		Nonce:     nonce,
 	}
 	pay, err := paymentService.Pay(
@@ -156,7 +161,7 @@ func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymen
 		return response, err
 	}
 
-	// Generate activation tokens in user account
+	// Generate 3 activation tokens in user account
 	tokens, err := t.NewCount(user.ID, user.Email, 3)
 	if err != nil {
 		return response, err
@@ -168,7 +173,7 @@ func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymen
 		}
 	}
 
-	// Send an invoice email
+	// Send an invoice email to the user
 	data := make(map[string]interface{})
 	data["name"] = user.Name
 	data["email"] = user.Email
@@ -182,7 +187,7 @@ func (s *CreatePaymentService) Execute(firstName, lastName, email, nonce, paymen
 		PaymentID:   pay.ID,
 		UserID:      user.ID,
 		ProductID:   product.ID,
-		Price:       product.Price,
+		Price:       amount.GetFloat(),
 		Currency:    product.Currency,
 		ProductName: product.Name,
 		UserName:    user.Name,

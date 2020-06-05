@@ -2,7 +2,6 @@ package payment
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/braintree-go/braintree-go"
@@ -25,25 +24,7 @@ func (p *BraintreeProvider) Connect() *braintree.Braintree {
 	)
 }
 
-// func (p *BraintreeProvider) payment() (string, error) {
-// 	ctx := context.Background()
-// 	transaction, err := p.Client.Transaction().Create(ctx, &braintree.TransactionRequest{
-// 		Type:   "sale",
-// 		Amount: braintree.NewDecimal(100, 2), // 100 cents
-// 		CreditCard: &braintree.CreditCard{
-// 			Number:         "4111111111111111",
-// 			ExpirationDate: "05/14",
-// 		},
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	fmt.Println(transaction)
-// 	return "", nil
-// }
-
-func (p *BraintreeProvider) paymentWithNonce(nonce string, amount int64) (result string, err error) {
+func (p *BraintreeProvider) paymentWithNonce(nonce string, amount int) (result *braintree.Transaction, err error) {
 	ctx := context.Background()
 	client := p.Connect()
 
@@ -54,7 +35,7 @@ func (p *BraintreeProvider) paymentWithNonce(nonce string, amount int64) (result
 
 	tx := &braintree.TransactionRequest{
 		Type:               "sale",
-		Amount:             braintree.NewDecimal(amount, 2),
+		Amount:             braintree.NewDecimal(int64(amount), 2),
 		PaymentMethodNonce: nonce,
 		Options: &braintree.TransactionOptions{
 			ThreeDSecure: &braintree.TransactionOptionsThreeDSecureRequest{Required: false},
@@ -66,9 +47,7 @@ func (p *BraintreeProvider) paymentWithNonce(nonce string, amount int64) (result
 		return result, err
 	}
 
-	fmt.Println(txn)
-
-	return result, nil
+	return txn, nil
 }
 
 func (p *BraintreeProvider) getClientToken() (token string, err error) {
