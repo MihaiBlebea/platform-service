@@ -4,6 +4,7 @@ import (
 	"log"
 
 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	"github.com/MihaiBlebea/Wordpress/platform/discount"
 	"github.com/MihaiBlebea/Wordpress/platform/payment"
 	"github.com/MihaiBlebea/Wordpress/platform/product"
 	"github.com/MihaiBlebea/Wordpress/platform/server"
@@ -18,6 +19,7 @@ func init() {
 	tokenRepo := token.Repo(c.Mysql())
 	productRepo := product.Repo(c.Mysql())
 	paymentRepo := payment.Repo(c.Mysql())
+	discountRepo := discount.Repo(c.Mysql())
 
 	err := userRepo.Migrate()
 	if err != nil {
@@ -32,6 +34,10 @@ func init() {
 		log.Panic(err)
 	}
 	err = paymentRepo.Migrate()
+	if err != nil {
+		log.Panic(err)
+	}
+	err = discountRepo.Migrate()
 	if err != nil {
 		log.Panic(err)
 	}

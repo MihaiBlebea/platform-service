@@ -33,8 +33,10 @@ func Serve(port string) {
 	router.POST("/user/token/deactivate", deactivateTokenHandler)
 
 	router.GET("/product", productGetHandler)
+
 	router.POST("/payment", paymentPostHandler)
 	router.GET("/payment/checkout", paymentCheckoutGetHandler)
+	router.GET("/payment/discount-validate", discountValidateGetHandler)
 
 	router.POST("/contact", contactPostHandler)
 
