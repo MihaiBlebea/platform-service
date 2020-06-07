@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/MihaiBlebea/Wordpress/platform/server/limiter"
 	u "github.com/MihaiBlebea/Wordpress/platform/user"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
@@ -35,6 +36,8 @@ func Serve(port string) {
 	router.POST("/payment", paymentPostHandler)
 	router.GET("/payment/checkout", paymentCheckoutGetHandler)
 
+	router.POST("/contact", contactPostHandler)
+
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
@@ -44,6 +47,8 @@ func Serve(port string) {
 		Debug: false,
 	})
 	handler := corsMiddleware.Handler(router)
+
+	handler = limiter.Limit(handler)
 
 	// handler := cors.Default().Handler(router)
 	err := http.ListenAndServe(port, handler)
