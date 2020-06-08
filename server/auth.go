@@ -7,9 +7,9 @@ import (
 	useremailconfirm "github.com/MihaiBlebea/Wordpress/platform/services/user-email-confirm"
 	usremailvalidate "github.com/MihaiBlebea/Wordpress/platform/services/user-email-validate"
 	usrlogin "github.com/MihaiBlebea/Wordpress/platform/services/user-login"
+	usrpassconfirm "github.com/MihaiBlebea/Wordpress/platform/services/user-password-confirm"
+	usrpassreset "github.com/MihaiBlebea/Wordpress/platform/services/user-password-reset"
 	useregister "github.com/MihaiBlebea/Wordpress/platform/services/user-register"
-	"github.com/MihaiBlebea/Wordpress/platform/services/usrpassconfirm"
-	"github.com/MihaiBlebea/Wordpress/platform/services/usrpassreset"
 	"github.com/julienschmidt/httprouter"
 )
 

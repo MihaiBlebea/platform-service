@@ -24,7 +24,7 @@ func (p *BraintreeProvider) Connect() *braintree.Braintree {
 	)
 }
 
-func (p *BraintreeProvider) paymentWithNonce(nonce string, amount int) (result *braintree.Transaction, err error) {
+func (p *BraintreeProvider) paymentWithNonce(nonce string, amount float64) (result *braintree.Transaction, err error) {
 	ctx := context.Background()
 	client := p.Connect()
 

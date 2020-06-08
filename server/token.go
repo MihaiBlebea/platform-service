@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/MihaiBlebea/Wordpress/platform/services/tknactiv"
-	"github.com/MihaiBlebea/Wordpress/platform/services/tkndeactiv"
-	"github.com/MihaiBlebea/Wordpress/platform/services/tknvalid"
-	"github.com/MihaiBlebea/Wordpress/platform/services/usrtkns"
+	tknactiv "github.com/MihaiBlebea/Wordpress/platform/services/token-activate"
+	tkndeactiv "github.com/MihaiBlebea/Wordpress/platform/services/token-deactivate"
+	tknvalid "github.com/MihaiBlebea/Wordpress/platform/services/token-validate"
+	usrtkns "github.com/MihaiBlebea/Wordpress/platform/services/user-tokens"
 	"github.com/julienschmidt/httprouter"
 )
 

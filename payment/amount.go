@@ -1,39 +1,32 @@
 package payment
 
-// Amount of money
-type Amount struct {
-	amount   int
+// Price of money
+type Price struct {
+	amount   float64
 	currency string
 }
 
-// NewAmount creates a new Amount object
-func NewAmount(amount int, currency string) *Amount {
-	return &Amount{amount, currency}
+// NewPrice creates a new Price object
+func NewPrice(amount float64, currency string) *Price {
+	return &Price{amount, currency}
 }
 
-// GetFloat returns the amount as a float with 2 decimals
-func (a *Amount) GetFloat() float64 {
-	return float64(a.amount / 100)
+// ApplyDiscount applies a discount to a price
+func (p *Price) ApplyDiscount(percentage float64) {
+	p.amount = p.amount + p.amount*percentage
 }
 
-// GetInt returns the amount as an int
-func (a *Amount) GetInt() int {
-	return a.amount
+// GetAmount returns the amount as a float with 2 decimals
+func (p *Price) GetAmount() float64 {
+	return p.amount
 }
 
 // GetCurrency returns the currency of the amount
-func (a *Amount) GetCurrency() string {
-	return a.currency
+func (p *Price) GetCurrency() string {
+	return p.currency
 }
 
-// FloatWithTVA returns amount as float with added TVA of 20%
-func (a *Amount) FloatWithTVA() float64 {
-	amount := a.GetFloat()
-	return amount + amount*0.2
-}
-
-// IntWithTVA returns amount as int with added TVA of 20%
-func (a *Amount) IntWithTVA() int {
-	total := a.FloatWithTVA()
-	return int(total * 100)
+// WithTVA returns amount as float with added TVA of 20%
+func (p *Price) WithTVA() float64 {
+	return p.amount + p.amount*0.2
 }

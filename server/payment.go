@@ -16,14 +16,15 @@ import (
 // Post a payment request with or without auth. If no auth code, then create account for user
 func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Body struct {
-		FirstName   string
-		LastName    string
-		Email       string
-		Password    string
-		Nonce       string
-		PaymentType string
-		Consent     bool
-		ProductCode string
+		FirstName    string
+		LastName     string
+		Email        string
+		Password     string
+		Nonce        string
+		PaymentType  string
+		Consent      bool
+		ProductCode  string
+		DiscountCode string
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -41,32 +42,24 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	jwt := r.Header.Get("Authorization")
 	if jwt != "" {
 		jwt = strings.TrimSpace(strings.Split(jwt, "Bearer")[1])
+	}
 
-		response, err = service.ExecuteWithAuth(
-			jwt,
-			body.Nonce,
-			body.PaymentType,
-			body.ProductCode,
-		)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-	} else {
-		response, err = service.Execute(
-			body.FirstName,
-			body.LastName,
-			body.Email,
-			body.Password,
-			body.Nonce,
-			body.PaymentType,
-			body.ProductCode,
-		)
+	request := paycreate.CreatePaymentRequest{
+		Token:        jwt,
+		FirstName:    body.FirstName,
+		LastName:     body.LastName,
+		Email:        body.Email,
+		Password:     body.Password,
+		Nonce:        body.Nonce,
+		PaymentType:  body.PaymentType,
+		ProductCode:  body.ProductCode,
+		DiscountCode: body.DiscountCode,
+	}
+	response, err = service.Execute(request)
 
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	err = json.NewEncoder(w).Encode(response)

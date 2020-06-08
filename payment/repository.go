@@ -25,7 +25,7 @@ func (r *Repository) Migrate() error {
 		user_id INT(100),
 		product_id INT(100),
 		payment_code VARCHAR(100),
-		price INT(6),
+		price FLOAT(6),
 		currency VARCHAR(4),
 		created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
