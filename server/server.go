@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/MihaiBlebea/Wordpress/platform/server/limiter"
-	u "github.com/MihaiBlebea/Wordpress/platform/user"
+	"github.com/MihaiBlebea/purpletree/platform/server/limiter"
+	u "github.com/MihaiBlebea/purpletree/platform/user"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
 )
@@ -36,7 +36,6 @@ func Serve(port string) {
 
 	router.POST("/payment", paymentPostHandler)
 	router.GET("/payment/checkout", paymentCheckoutGetHandler)
-	router.GET("/payment/discount-validate", discountValidateGetHandler)
 
 	router.POST("/contact", contactPostHandler)
 

@@ -3,8 +3,8 @@ package tknactiv
 import (
 	"testing"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	tkn "github.com/MihaiBlebea/Wordpress/platform/user/token"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	tkn "github.com/MihaiBlebea/purpletree/platform/user/token"
 )
 
 func TestTokenIsActivated(t *testing.T) {

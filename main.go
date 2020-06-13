@@ -3,13 +3,13 @@ package main
 import (
 	"log"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	"github.com/MihaiBlebea/Wordpress/platform/discount"
-	"github.com/MihaiBlebea/Wordpress/platform/payment"
-	"github.com/MihaiBlebea/Wordpress/platform/product"
-	"github.com/MihaiBlebea/Wordpress/platform/server"
-	"github.com/MihaiBlebea/Wordpress/platform/user"
-	"github.com/MihaiBlebea/Wordpress/platform/user/token"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	"github.com/MihaiBlebea/purpletree/platform/discount"
+	"github.com/MihaiBlebea/purpletree/platform/payment"
+	"github.com/MihaiBlebea/purpletree/platform/product"
+	"github.com/MihaiBlebea/purpletree/platform/server"
+	"github.com/MihaiBlebea/purpletree/platform/user"
+	"github.com/MihaiBlebea/purpletree/platform/user/token"
 )
 
 const serverPort = ":8001"

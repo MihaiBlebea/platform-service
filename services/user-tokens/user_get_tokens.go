@@ -1,8 +1,8 @@
 package usrtkns
 
 import (
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	t "github.com/MihaiBlebea/Wordpress/platform/user/token"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	t "github.com/MihaiBlebea/purpletree/platform/user/token"
 )
 
 // New creates a new ActivateTokenService

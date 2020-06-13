@@ -4,20 +4,23 @@ import (
 	"encoding/json"
 	"net/http"
 
-	tknactiv "github.com/MihaiBlebea/Wordpress/platform/services/token-activate"
-	tkndeactiv "github.com/MihaiBlebea/Wordpress/platform/services/token-deactivate"
-	tknvalid "github.com/MihaiBlebea/Wordpress/platform/services/token-validate"
-	usrtkns "github.com/MihaiBlebea/Wordpress/platform/services/user-tokens"
+	tknactiv "github.com/MihaiBlebea/purpletree/platform/services/token-activate"
+	tkndeactiv "github.com/MihaiBlebea/purpletree/platform/services/token-deactivate"
+	tknvalid "github.com/MihaiBlebea/purpletree/platform/services/token-validate"
+	usrtkns "github.com/MihaiBlebea/purpletree/platform/services/user-tokens"
 	"github.com/julienschmidt/httprouter"
 )
 
 func activateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Token string
+	// 	Host  string
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Token string
 		Host  string
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -38,12 +41,15 @@ func activateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 }
 
 func deactivateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Token string
+	// 	Host  string
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Token string
 		Host  string
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -64,12 +70,15 @@ func deactivateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter
 }
 
 func vaidateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Token string
+	// 	Host  string
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Token string
 		Host  string
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)

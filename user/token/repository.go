@@ -1,7 +1,7 @@
 package token
 
 import (
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
 
 	// Mysql driver
 	_ "github.com/go-sql-driver/mysql"

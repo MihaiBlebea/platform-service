@@ -2,20 +2,20 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
 
-	"github.com/MihaiBlebea/Wordpress/platform/services/checkout"
-	paycreate "github.com/MihaiBlebea/Wordpress/platform/services/payment-create"
-	paydiscountvalid "github.com/MihaiBlebea/Wordpress/platform/services/payment-discount-validate"
+	"github.com/MihaiBlebea/purpletree/platform/services/checkout"
+	paycreate "github.com/MihaiBlebea/purpletree/platform/services/payment-create"
 )
 
 // Post a payment request with or without auth. If no auth code, then create account for user
 func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		FirstName    string
 		LastName     string
 		Email        string
@@ -26,9 +26,6 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		ProductCode  string
 		DiscountCode string
 	}
-
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -55,6 +52,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		ProductCode:  body.ProductCode,
 		DiscountCode: body.DiscountCode,
 	}
+
 	response, err = service.Execute(request)
 
 	if err != nil {
@@ -71,10 +69,12 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 // Get all the information to render the checkout page
 func paymentCheckoutGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params := r.URL.Query()
-	code := params.Get("code")
-	if code == "" {
+	productCode := params.Get("product-code")
+	if productCode == "" {
 		http.Error(w, "No product code supplied", 500)
 	}
+
+	discountCode := params.Get("discount-code")
 
 	jwt := r.Header.Get("Authorization")
 	if jwt != "" {
@@ -82,36 +82,13 @@ func paymentCheckoutGetHandler(w http.ResponseWriter, r *http.Request, _ httprou
 	}
 
 	service := checkout.New()
-	response, err := service.Execute(code, jwt)
+	response, err := service.Execute(checkout.Request{
+		ProductCode:  productCode,
+		JWT:          jwt,
+		DiscountCode: discountCode,
+	})
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-}
-
-func discountValidateGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	params := r.URL.Query()
-	code := params.Get("code")
-	if code == "" {
-		http.Error(w, "No discount code supplied", 500)
-	}
-	product := params.Get("product")
-	if code == "" {
-		http.Error(w, "No product code supplied", 500)
-	}
-	productID, err := strconv.Atoi(product)
-	if err != nil {
-		http.Error(w, "Invalid product id", 500)
-	}
-
-	service := paydiscountvalid.New()
-	response, err := service.Execute(code, productID)
-	if err != nil {
+		log.Panic(response)
 		http.Error(w, err.Error(), 500)
 		return
 	}

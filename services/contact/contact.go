@@ -1,7 +1,7 @@
 package contact
 
 import (
-	e "github.com/MihaiBlebea/Wordpress/platform/email"
+	e "github.com/MihaiBlebea/purpletree/platform/email"
 )
 
 // New returns a new contact Service

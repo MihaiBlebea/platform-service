@@ -3,9 +3,9 @@ package useregister
 import (
 	"os"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	e "github.com/MihaiBlebea/Wordpress/platform/email"
-	u "github.com/MihaiBlebea/Wordpress/platform/user"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	e "github.com/MihaiBlebea/purpletree/platform/email"
+	u "github.com/MihaiBlebea/purpletree/platform/user"
 )
 
 // New creates a new ActivateTokenService

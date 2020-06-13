@@ -1,7 +1,7 @@
 package user
 
 import (
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
 )
 
 // Register registers a user and generates a JWT token

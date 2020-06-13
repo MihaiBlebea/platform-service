@@ -4,20 +4,25 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/MihaiBlebea/Wordpress/platform/services/contact"
+	"github.com/MihaiBlebea/purpletree/platform/services/contact"
 	"github.com/julienschmidt/httprouter"
 )
 
 func contactPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Name    string
+	// 	Email   string
+	// 	Subject string
+	// 	Message string
+	// }
+
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Name    string
 		Email   string
 		Subject string
 		Message string
 	}
-
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)

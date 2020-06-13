@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-const tva = 0.20
-
 // Payment model
 type Payment struct {
 	ID          int       `json:"id"`

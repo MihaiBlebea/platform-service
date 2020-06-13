@@ -3,8 +3,8 @@ package usrlogin
 import (
 	"testing"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	u "github.com/MihaiBlebea/Wordpress/platform/user"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	u "github.com/MihaiBlebea/purpletree/platform/user"
 )
 
 func TestUserCannotLoginWhenNotRegistered(t *testing.T) {

@@ -3,9 +3,9 @@ package usrtkns
 import (
 	"testing"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	u "github.com/MihaiBlebea/Wordpress/platform/user"
-	tkn "github.com/MihaiBlebea/Wordpress/platform/user/token"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	u "github.com/MihaiBlebea/purpletree/platform/user"
+	tkn "github.com/MihaiBlebea/purpletree/platform/user/token"
 )
 
 func TestUserHasGotTokens(t *testing.T) {

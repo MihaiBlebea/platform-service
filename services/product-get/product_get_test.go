@@ -3,8 +3,8 @@ package prodget
 // import (
 // 	"testing"
 
-// 	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-// 	p "github.com/MihaiBlebea/Wordpress/platform/product"
+// 	c "github.com/MihaiBlebea/purpletree/platform/connection"
+// 	p "github.com/MihaiBlebea/purpletree/platform/product"
 // )
 
 // func TestProductCannotBeFetched(t *testing.T) {

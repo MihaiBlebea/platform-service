@@ -3,10 +3,10 @@ package prodget
 import (
 	"fmt"
 
-	"github.com/MihaiBlebea/Wordpress/platform/payment"
+	"github.com/MihaiBlebea/purpletree/platform/payment"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	p "github.com/MihaiBlebea/Wordpress/platform/product"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	p "github.com/MihaiBlebea/purpletree/platform/product"
 )
 
 // New returns a new GetProductService
@@ -22,11 +22,12 @@ type GetProductService struct {
 
 // GetProductResponse is the response struct for GetProductService
 type GetProductResponse struct {
-	ID       int     `json:"id"`
-	Code     string  `json:"code"`
-	Name     string  `json:"name"`
-	Price    float64 `json:"price"`
-	Currency string  `json:"currency"`
+	ID           int     `json:"id"`
+	Code         string  `json:"code"`
+	Name         string  `json:"name"`
+	Price        float64 `json:"price"`
+	PriceWithTVA float64 `json:"tva_price"`
+	Currency     string  `json:"currency"`
 }
 
 // Execute runs the RegisterUserService
@@ -39,13 +40,14 @@ func (s *GetProductService) Execute(code string) (response GetProductResponse, e
 		return response, fmt.Errorf("Could not find product with code %s", code)
 	}
 
-	amount := payment.NewAmount(product.Price, product.Currency)
+	price := payment.NewPrice(product.Price, product.Currency)
 
 	return GetProductResponse{
-		ID:       product.ID,
-		Code:     product.Code,
-		Name:     product.Name,
-		Price:    amount.GetFloat(),
-		Currency: amount.GetCurrency(),
+		ID:           product.ID,
+		Code:         product.Code,
+		Name:         product.Name,
+		Price:        price.GetAmount(),
+		PriceWithTVA: price.WithTVA(),
+		Currency:     price.GetCurrency(),
 	}, nil
 }

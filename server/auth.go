@@ -4,23 +4,26 @@ import (
 	"encoding/json"
 	"net/http"
 
-	useremailconfirm "github.com/MihaiBlebea/Wordpress/platform/services/user-email-confirm"
-	usremailvalidate "github.com/MihaiBlebea/Wordpress/platform/services/user-email-validate"
-	usrlogin "github.com/MihaiBlebea/Wordpress/platform/services/user-login"
-	usrpassconfirm "github.com/MihaiBlebea/Wordpress/platform/services/user-password-confirm"
-	usrpassreset "github.com/MihaiBlebea/Wordpress/platform/services/user-password-reset"
-	useregister "github.com/MihaiBlebea/Wordpress/platform/services/user-register"
+	useremailconfirm "github.com/MihaiBlebea/purpletree/platform/services/user-email-confirm"
+	usremailvalidate "github.com/MihaiBlebea/purpletree/platform/services/user-email-validate"
+	usrlogin "github.com/MihaiBlebea/purpletree/platform/services/user-login"
+	usrpassconfirm "github.com/MihaiBlebea/purpletree/platform/services/user-password-confirm"
+	usrpassreset "github.com/MihaiBlebea/purpletree/platform/services/user-password-reset"
+	useregister "github.com/MihaiBlebea/purpletree/platform/services/user-register"
 	"github.com/julienschmidt/httprouter"
 )
 
 // Login to the platform
 func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Email    string
+	// 	Password string
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Email    string
 		Password string
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -42,14 +45,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 // Register to the platform, without confirming your account
 func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Name     string
+	// 	Email    string
+	// 	Password string
+	// 	Consent  bool
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Name     string
 		Email    string
 		Password string
 		Consent  bool
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -71,11 +79,13 @@ func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 
 // Confirm your email and activate your account
 func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	Code string
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		Code string
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -97,12 +107,15 @@ func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httpro
 
 // Reset user's password
 func passwordPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	type Body struct {
+	// type Body struct {
+	// 	ConfirmCode string
+	// 	Password    string
+	// }
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
 		ConfirmCode string
 		Password    string
 	}
-	decoder := json.NewDecoder(r.Body)
-	var body Body
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)

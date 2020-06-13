@@ -3,15 +3,15 @@ package paycreate
 import (
 	"fmt"
 
-	"github.com/MihaiBlebea/Wordpress/platform/discount"
+	"github.com/MihaiBlebea/purpletree/platform/discount"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	d "github.com/MihaiBlebea/Wordpress/platform/discount"
-	e "github.com/MihaiBlebea/Wordpress/platform/email"
-	"github.com/MihaiBlebea/Wordpress/platform/payment"
-	p "github.com/MihaiBlebea/Wordpress/platform/product"
-	u "github.com/MihaiBlebea/Wordpress/platform/user"
-	t "github.com/MihaiBlebea/Wordpress/platform/user/token"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	d "github.com/MihaiBlebea/purpletree/platform/discount"
+	e "github.com/MihaiBlebea/purpletree/platform/email"
+	"github.com/MihaiBlebea/purpletree/platform/payment"
+	p "github.com/MihaiBlebea/purpletree/platform/product"
+	u "github.com/MihaiBlebea/purpletree/platform/user"
+	t "github.com/MihaiBlebea/purpletree/platform/user/token"
 )
 
 // New returns a CreatePaymentService struct
@@ -97,6 +97,7 @@ func (s *CreatePaymentService) Execute(request CreatePaymentRequest) (response C
 	if count != 0 && discount.IsValid() == true {
 		price.ApplyDiscount(discount.Percentage)
 	}
+
 	price.ApplyDiscount(discount.Percentage)
 
 	// Make payment with payment provider
@@ -167,7 +168,8 @@ func (s *CreatePaymentService) createUserFromRaw(firstName, lastName, email, pas
 	return user, nil
 }
 
-func (s *CreatePaymentService) createEmailPayload(name, email, productName string) (payload map[string]interface{}) {
+func (s *CreatePaymentService) createEmailPayload(name, email, productName string) map[string]interface{} {
+	payload := make(map[string]interface{})
 	payload["name"] = name
 	payload["email"] = email
 	payload["product"] = productName

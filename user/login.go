@@ -3,7 +3,7 @@ package user
 import (
 	"errors"
 
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
 	"golang.org/x/crypto/bcrypt"
 )
 

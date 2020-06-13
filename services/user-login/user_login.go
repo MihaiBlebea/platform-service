@@ -1,8 +1,8 @@
 package usrlogin
 
 import (
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
-	u "github.com/MihaiBlebea/Wordpress/platform/user"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
+	u "github.com/MihaiBlebea/purpletree/platform/user"
 )
 
 // New creates a new ActivateTokenService

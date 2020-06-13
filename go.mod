@@ -1,4 +1,4 @@
-module github.com/MihaiBlebea/Wordpress/platform
+module github.com/MihaiBlebea/purpletree/platform
 
 go 1.14
 

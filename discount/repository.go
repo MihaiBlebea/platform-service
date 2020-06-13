@@ -1,7 +1,7 @@
 package discount
 
 import (
-	c "github.com/MihaiBlebea/Wordpress/platform/connection"
+	c "github.com/MihaiBlebea/purpletree/platform/connection"
 
 	// Mysql driver for mysql
 	_ "github.com/go-sql-driver/mysql"
