@@ -2,6 +2,7 @@ package paycreate
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/MihaiBlebea/purpletree/platform/discount"
 
@@ -129,7 +130,14 @@ func (s *CreatePaymentService) Execute(request CreatePaymentRequest) (response C
 	}
 
 	// Send an invoice email to the user
-	err = s.EmailService.Send("payment", s.createEmailPayload(user.Name, user.Email, product.Name))
+	err = s.EmailService.Send("payment", s.createEmailPayload(
+		user.Name,
+		user.Email,
+		product.Name,
+		pay.Created,
+		price.GetAmount(),
+		price.WithTVA(),
+	))
 	if err != nil {
 		return response, err
 	}
@@ -168,11 +176,14 @@ func (s *CreatePaymentService) createUserFromRaw(firstName, lastName, email, pas
 	return user, nil
 }
 
-func (s *CreatePaymentService) createEmailPayload(name, email, productName string) map[string]interface{} {
+func (s *CreatePaymentService) createEmailPayload(name, email, productName string, paymentDate time.Time, price, totalPrice float64) map[string]interface{} {
 	payload := make(map[string]interface{})
 	payload["name"] = name
 	payload["email"] = email
-	payload["product"] = productName
+	payload["productName"] = productName
+	payload["paymentDate"] = paymentDate
+	payload["price"] = price
+	payload["totalPrice"] = totalPrice
 
 	return payload
 }

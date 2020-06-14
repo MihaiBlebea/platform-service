@@ -26,8 +26,8 @@ func (s *Service) Execute(name, email, subject, message string) (response Respon
 	// Send the message
 	data := make(map[string]interface{})
 	data["email"] = "mihaiserban.blebea@gmail.com" // replace
-	data["user_name"] = name
-	data["user_email"] = email
+	data["userName"] = name
+	data["userEmail"] = email
 	data["subject"] = subject
 	data["message"] = message
 
