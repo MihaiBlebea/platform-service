@@ -15,10 +15,6 @@ import (
 
 // Login to the platform
 func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Email    string
-	// 	Password string
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Email    string
@@ -45,12 +41,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 // Register to the platform, without confirming your account
 func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Name     string
-	// 	Email    string
-	// 	Password string
-	// 	Consent  bool
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Name     string
@@ -79,9 +69,6 @@ func registerPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 
 // Confirm your email and activate your account
 func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Code string
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Code string
@@ -107,10 +94,6 @@ func registerConfirmPostHandler(w http.ResponseWriter, r *http.Request, _ httpro
 
 // Reset user's password
 func passwordPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	ConfirmCode string
-	// 	Password    string
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		ConfirmCode string

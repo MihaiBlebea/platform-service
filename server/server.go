@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"github.com/MihaiBlebea/purpletree/platform/server/limiter"
+	usrauth "github.com/MihaiBlebea/purpletree/platform/services/user-authenticate"
 	u "github.com/MihaiBlebea/purpletree/platform/user"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
 )
@@ -51,6 +53,8 @@ func Serve(port string) {
 
 	handler = limiter.Limit(handler)
 
+	handler = auth(handler)
+
 	// handler := cors.Default().Handler(router)
 	err := http.ListenAndServe(port, handler)
 	if err != nil {
@@ -58,29 +62,54 @@ func Serve(port string) {
 	}
 }
 
-func authenticate(r *http.Request) bool {
-	authorization := r.Header.Get("Authorization")
-	if authorization == "" {
-		return false
-	}
-	token := strings.TrimSpace(strings.Split(authorization, "Bearer")[1])
-	found, _, err := u.Authenticate(token)
-	if err != nil {
-		return false
-	}
-	return found
+// auth is a middleware that checks if the current route
+// is part of the protected list of routes,
+// if so, then it requires the request to have a valid JWT or it's returned with error
+func auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		protected := []string{"/user/tokens"}
+
+		contains := func(s []string, e string) bool {
+			for _, a := range s {
+				if a == e {
+					return true
+				}
+			}
+			return false
+		}
+
+		if contains(protected, r.URL.Path) == false {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		_, err := getUserFromJWT(r)
+		if err != nil {
+			http.Error(w, "No Authorization", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
-func authenticatedUser(r *http.Request) (user *u.User, err error) {
+func getUserFromJWT(r *http.Request) (user *u.User, err error) {
 	authorization := r.Header.Get("Authorization")
 	if authorization == "" {
-		return user, errors.New("Could not find JWT token in request")
+		return user, errors.New("No auth token provided")
 	}
-	token := strings.TrimSpace(strings.Split(authorization, "Bearer")[1])
-	_, user, err = u.Authenticate(token)
+
+	jwt := strings.TrimSpace(strings.Split(authorization, "Bearer")[1])
+
+	service := usrauth.New()
+	isValid, user, err := service.Execute(jwt)
 	if err != nil {
 		return user, err
 	}
+	if isValid == false {
+		return user, errors.New("No auth token provided")
+	}
+
 	return user, nil
 }
 

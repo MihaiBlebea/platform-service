@@ -89,3 +89,9 @@ func New(name, email, password string, consent bool) (*User, error) {
 	}
 	return user, nil
 }
+
+// CheckPasswordHash validates a password against the saved hash
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}

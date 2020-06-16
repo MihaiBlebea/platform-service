@@ -9,13 +9,6 @@ import (
 )
 
 func contactPostHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Name    string
-	// 	Email   string
-	// 	Subject string
-	// 	Message string
-	// }
-
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Name    string

@@ -12,10 +12,6 @@ import (
 )
 
 func activateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Token string
-	// 	Host  string
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Token string
@@ -41,10 +37,6 @@ func activateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 }
 
 func deactivateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Token string
-	// 	Host  string
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Token string
@@ -70,10 +62,6 @@ func deactivateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter
 }
 
 func vaidateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// type Body struct {
-	// 	Token string
-	// 	Host  string
-	// }
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Token string
@@ -95,12 +83,7 @@ func vaidateTokenHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 }
 
 func tokensGetHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if authenticate(r) == false {
-		http.Error(w, "Not authenticated", 401)
-		return
-	}
-
-	user, err := authenticatedUser(r)
+	user, err := getUserFromJWT(r)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
